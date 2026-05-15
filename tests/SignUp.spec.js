@@ -1,0 +1,83 @@
+import { test, expect } from '@playwright/test';
+import { faker, tr } from '@faker-js/faker';
+
+test('test sign up functionality', async ({ page }) => {
+    const email = faker.internet.email();
+    const password = faker.internet.password();
+    const name = faker.person.fullName();
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Get Started' }).click();
+    await expect(page).toHaveURL('http://localhost:3000/app');
+    await page.getByRole('button', { name: 'Sign Up' }).click();
+    const signupForm = page.locator('#signupForm').first();
+    await expect(signupForm.getByPlaceholder('your@email.com')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('••••••••')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('John Doe')).toBeVisible();
+    await signupForm.getByPlaceholder('your@email.com').fill(email);
+    await signupForm.getByPlaceholder('••••••••').fill(password);
+    await signupForm.getByPlaceholder('John Doe').fill(name);
+    await signupForm.getByRole('button', { name: 'CREATE ACCOUNT' }).click();
+    await expect(page).toHaveTitle('BlueGuardian — Dashboard');
+  });
+test('test sign up with existing email', async ({ page }) => {
+    const email = 'existing@example.com';
+    const password = faker.internet.password();
+    const name = faker.person.fullName();
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Get Started' }).click();
+    await expect(page).toHaveURL('http://localhost:3000/app');
+    await page.getByRole('button', { name: 'Sign Up' }).click();
+    const signupForm = page.locator('#signupForm').first();
+    await expect(signupForm.getByPlaceholder('your@email.com')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('••••••••')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('John Doe')).toBeVisible();
+    await signupForm.getByPlaceholder('your@email.com').fill(email);
+    await signupForm.getByPlaceholder('••••••••').fill(password);
+    await signupForm.getByPlaceholder('John Doe').fill(name);
+    await signupForm.getByRole('button', { name: 'CREATE ACCOUNT' }).click();
+    await expect(page.getByText('Email already registered')).toBeVisible();
+  });
+
+  test('test sign up with short password', async ({ page }) => {
+    const email = faker.internet.email();
+    const password = 'short';
+    const name = faker.person.fullName();
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Get Started' }).click();
+    await expect(page).toHaveURL('http://localhost:3000/app');
+    await page.getByRole('button', { name: 'Sign Up' }).click();
+    const signupForm = page.locator('#signupForm').first();
+    await expect(signupForm.getByPlaceholder('your@email.com')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('••••••••')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('John Doe')).toBeVisible();
+    await signupForm.getByPlaceholder('your@email.com').fill(email);
+    await signupForm.getByPlaceholder('••••••••').fill(password);
+    await signupForm.getByPlaceholder('John Doe').fill(name);
+    await signupForm.getByRole('button', { name: 'CREATE ACCOUNT' }).click();
+    await expect(page.getByText('Password must be at least 6 characters')).toBeVisible();
+  });
+test('Test sign up with empty fields', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Get Started' }).click();
+    await expect(page).toHaveURL('http://localhost:3000/app');
+    await page.getByRole('button', { name: 'Sign Up' }).click();
+    const signupForm = page.locator('#signupForm').first();
+    await expect(signupForm.getByPlaceholder('your@email.com')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('••••••••')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('John Doe')).toBeVisible();
+    await signupForm.getByRole('button', { name: 'CREATE ACCOUNT' }).click();
+    await expect(page.getByText('All fields required')).toBeVisible();
+  });
+test('test back to home button in register page', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('link', { name: 'Get Started' }).click();
+    await expect(page).toHaveURL('http://localhost:3000/app');
+    await page.getByRole('button', { name: 'Sign Up' }).click();
+    const signupForm = page.locator('#signupForm').first();
+    await expect(signupForm.getByPlaceholder('your@email.com')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('••••••••')).toBeVisible();
+    await expect(signupForm.getByPlaceholder('John Doe')).toBeVisible();
+    await page.getByRole('link', { name: '← Back to home' }).click();
+    await expect(page).toHaveURL('http://localhost:3000/');
+    await expect(page).toHaveTitle('BlueGuardian — Protect Your Digital Identity');
+  });
